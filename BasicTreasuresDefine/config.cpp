@@ -11,8 +11,8 @@ class CfgMods
 {
 	class BasicTreasuresDefine
 	{
-		dir="BasicTerritoriesDefine";
-        name="BasicTreasures";
+		dir="BasicTreasuresDefine";
+        name="BasicTreasuresDefine";
         type="mod";
 	    dependencies[]={"GameLib", "Game", "World", "Mission"};
 	    class defs
