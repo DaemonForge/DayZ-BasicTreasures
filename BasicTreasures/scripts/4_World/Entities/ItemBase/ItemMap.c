@@ -17,15 +17,14 @@ modded class ChernarusMap  extends ItemMap
 		}
 		BasicMap().NewChestSpawned();
 		
-		Print("[Treasure] Map Spawned at: " + GetPosition() );
 
 		UndergroundStash stash = UndergroundStash.Cast( GetGame().CreateObject( "UndergroundStash",  m_TreasureLocation));
 		if (stash){
 			stash.PlaceOnGround(); 
-			stash.SetLifetime(430000);
 			vector pos = stash.GetPosition();
 			vector ori = stash.GetOrientation();
 			m_TreasureLocation = pos;
+			stash.SetLifetime(604800);
 			
 			if ( ori[2] == -180 || ori[2] == 180 ){
 				ori[2] = 0;
@@ -50,6 +49,8 @@ modded class ChernarusMap  extends ItemMap
 			ref BasicMapMarker theMarker = new BasicMapMarker("X", pos, "BasicTreasures\\gui\\images\\x.paa", {226, 144, 17}, 200, false);
 			theMarker.SetCanEdit(false);
 			m_BasicMapMarkerArray.Insert(theMarker);
+			
+			Print("[Treasure] Map Spawned at: " + GetPosition() + " Stash: " + stash.GetPosition() + " LifeTime: " + stash.GetLifetime());
 		}
 	}
 
@@ -70,24 +71,34 @@ modded class ChernarusMap  extends ItemMap
 
 	
 	override void EEDelete(EntityAI parent){
-		array<Object> objects = new array<Object>;
-		array<CargoBase> proxyCargos = new array<CargoBase>;
-		GetGame().GetObjectsAtPosition3D(m_TreasureLocation, 3, objects, proxyCargos);
-		UndergroundStash stash;
-		SeaChest chest;
-		for (int i = 0; i < objects.Count(); i++){
-			if ( Class.CastTo(stash, objects.Get(i)) ){
-				Print("[Treasure] Map at " + GetPosition() +  "  Deleted Stash: " + m_TreasureLocation );
-				GetGame().ObjectDelete(stash);
-				super.EEDelete(parent);
-				return;
+		if (GetGame()){ //If server is shuting down don't proccess
+			bool HasParent = false;
+			EntityAI ThisParent = EntityAI.Cast(this.GetParent());
+			if (ThisParent){
+				HasParent = true;
 			}
-			if ( Class.CastTo(chest, objects.Get(i)) ){
-				Print("[Treasure] Map at " + GetPosition() +  "  Deleted Chest: " + m_TreasureLocation );
-				GetGame().ObjectDelete(chest);
+			float RemainingLife = 0;
+			array<Object> objects = new array<Object>;
+			array<CargoBase> proxyCargos = new array<CargoBase>;
+			GetGame().GetObjectsAtPosition3D(m_TreasureLocation, 3, objects, proxyCargos);
+			UndergroundStash stash;
+			SeaChest chest;
+			for (int i = 0; i < objects.Count(); i++){
+				if ( Class.CastTo(stash, objects.Get(i)) ){
+					RemainingLife = stash.GetLifetime();
+					if (!HasParent && RemainingLife < 400){ //Only delete if the lifetime is less than 400second and it doesn't have a parent
+						Print("[Treasure] Map at " + GetPosition() +  "  Deleted Stash: " + m_TreasureLocation + " RemainingLife: " + RemainingLife);
+						GetGame().ObjectDelete(stash);
+					}
+					super.EEDelete(parent);
+					return;
+				}
+				if ( Class.CastTo(chest, objects.Get(i)) ){
+					Print("[Treasure] Map at " + GetPosition() +  "  Deleted Chest: " + m_TreasureLocation + " RemainingLife: " + RemainingLife);
+					GetGame().ObjectDelete(chest);
+				}
 			}
 		}
-		
 		super.EEDelete(parent);
 	}
 
