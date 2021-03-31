@@ -4,7 +4,7 @@ class BasicTreasuresConfig
 	string ConfigVersion = "1";
 	float ChanceOnSpawn = 0.2;
 	int MaxSpawnRate = 5;
-	ref array<ref BasicTreasuresRewardPool> RewardPools = new ref array<ref BasicTreasuresRewardPool>;
+	ref array<ref BasicTreasuresRewardPool> RewardPools = new array<ref BasicTreasuresRewardPool>;
 	
 	void Load(){
 		if (GetGame().IsServer()){
@@ -42,7 +42,7 @@ class BasicTreasuresConfig
 class BasicTreasuresRewardPool {
 	string Name;
 	string RewardContainer;
-	ref array<ref BasicTreasuresReward> Rewards = new ref array<ref BasicTreasuresReward>;
+	ref array<ref BasicTreasuresReward> Rewards = new array<ref BasicTreasuresReward>;
 	
 	void BasicTreasuresRewardPool( )
 	{
@@ -68,7 +68,7 @@ static ref BasicTreasuresConfig GetBasicTreasuresConfig()
 {
 	if (!m_BasicTreasuresConfig)
 	{
-		m_BasicTreasuresConfig = new ref BasicTreasuresConfig;
+		m_BasicTreasuresConfig = new BasicTreasuresConfig;
 			
 		if ( GetGame().IsServer() ){
 			m_BasicTreasuresConfig.Load();
